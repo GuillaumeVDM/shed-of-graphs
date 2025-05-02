@@ -23,8 +23,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 ## Gebruik
-
--  git clone https://github.com/GuillaumeVDM/shed-of-graphs.git
--  cd shed-of-graphs
-
--  geng 5 | python filter.py "min_edges=3 and max_edges=5" (voorbeeld)
+```bash
+git clone https://github.com/GuillaumeVDM/shed-of-graphs.git
+cd shed-of-graphs
+chmod +x runfilter.sh
+./runfilter.sh 5 \'{"rules":[{"type":"min","edges":3,"sumdeg":5},{"type":"max","edges":5,"sumdeg":6}]}'
+```
