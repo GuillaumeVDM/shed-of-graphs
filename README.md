@@ -29,3 +29,12 @@ cd shed-of-graphs
 chmod +x runfilter.sh
 ./runfilter.sh 5 \'{"rules":[{"type":"min","edges":3,"sumdeg":5},{"type":"max","edges":5,"sumdeg":6}]}'
 ```
+
+## Tests
+
+```bash
+cd ~/Desktop/iwProject
+source projectvenv/bin/activate
+python -m pytest -v test/test_filter.py
+python -m pytest -v test/test_history.py
+```
