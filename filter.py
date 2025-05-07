@@ -1,97 +1,110 @@
 #!/usr/bin/env python3
-
 import sys
 import json
 import argparse
 import networkx as nx
 from datetime import datetime
 
-# Naam van het historie-bestand (in de huidige map)
 HISTORY_FILE = 'history.txt'
 
+"""
+    load_rules laadt en valideert regels uit JSON-string.
+    INPUT:
+        Verwacht: filter_json = '{"rules":[{"type":"min","edges":3,"sumdeg":5}]}'
+    RET:
+        list[dict]
+"""
+def load_rules(filter_json: str):
+    data = json.loads(filter_json)  # zet die JSON-string om in een Python-dict
+    return data['rules']            # returns Python-lijst met dicts zoals {"type": "min", "edges": 3, "sumdeg": 5}
 
-def parse_args():
-    parser = argparse.ArgumentParser(
-        description="Filter graph6 graphs by degree-sum rules.")
-    parser.add_argument(
-        "--filter", "-f", required=True,
-        help="JSON string defining filter rules; see script doc for format.")
-    return parser.parse_args()
+"""
+    passes_rule checkt of een enkel filtercriterium (min, max of exact) klopt voor een gegeven graf.
+    INPUT:
+        edges = het aantal randen in de graf.
+        degsum = de som van alle knoopgraden.
+        rule = één filterregel, bv. {"type": "min", "edges": 3, "sumdeg": 5}
+
+    typ = min, max of exact van de filterregel rule
+    e = getal van rule waarmee je edges vergelijkt
+    s = getal van rule waarmee je degsum vergelijkt
+
+"""
+def passes_rule(edges: int, degsum: int, rule: dict) -> bool:
+    typ = rule['type']
+    e = rule['edges']
+    s = rule['sumdeg']
+    if typ == 'min':
+        # Vereist dat beide voorwaarden gelden
+        return edges >= e and degsum >= s
+    if typ == 'max':
+        # Vereist dat beide voorwaarden gelden
+        return edges <= e and degsum <= s
+    if typ == 'exact':
+        # Vereist dat beide voorwaarden gelden
+        return edges == e and degsum == s
+    return False
+
+"""
+    filter_graphs verwerkt de inkomende grafen (in graph6-formaat) en selecteert de grafen die álle regels uit je filterpassage doorstaan.
+    INPUT:
+        rules = de lijst van dicts uit load_rules
+
+    RET:
+        lijst passed met alle graph6-strings die voldoen aan de filtercriteria
+"""
+def filter_graphs(rules: list[dict]) -> list[str]:
+    passed = [] # hierin gaan we alle graph6-strings verzamelen die voldoen
+    for line in sys.stdin:  
+        g6 = line.strip()   # verwijdert overbodige witruimte
+        if not g6:          # lege regels overslaan
+            continue
+        try:
+            G = nx.from_graph6_bytes(g6.encode())   # Parseren: networkx.from_graph6_bytes maakt van de textuele graph6-representatie een NetworkX-grafobject
+        except Exception:
+            continue
+        edges = G.number_of_edges() # edges = totaal aantal randen in graf G.
+        degsum = sum(dict(G.degree()).values()) # degsum = de som van alle knoopgraden
+        if all(passes_rule(edges, degsum, rule) for rule in rules): # we loopen over alle rule-dicts in rules, checken rule, 
+                                                                    # all() geeft alleen True als elk individueel passes_rule-resultaat True is
+            passed.append(g6) # toevoegen van oorspronkelijke graph6-string
+    return passed
 
 
-def load_filter_config(filter_text):
-    try:
-        config = json.loads(filter_text)
-    except json.JSONDecodeError as e:
-        sys.exit(f"Error: invalid JSON filter: {e}")
-    if "rules" not in config or not isinstance(config["rules"], list):
-        sys.exit("Error: filter JSON must have a 'rules' list.")
-    # Validate each rule
-    for rule in config["rules"]:
-        if not all(key in rule for key in ("type", "edges", "sumdeg")):
-            sys.exit("Error: each rule must have 'type', 'edges', and 'sumdeg'.")
-        if rule["type"] not in ("min", "max", "exact"):
-            sys.exit("Error: rule type must be 'min', 'max', or 'exact'.")
-    return config
-
-
-def passes_all_rules(graph, rules):
-    degrees = dict(graph.degree())
-    for rule in rules:
-        count = 0
-        for u, v in graph.edges():
-            if degrees[u] + degrees[v] == rule["sumdeg"]:
-                count += 1
-        if rule["type"] == "min" and count < rule["edges"]:
-            return False
-        elif rule["type"] == "max" and count > rule["edges"]:
-            return False
-        elif rule["type"] == "exact" and count != rule["edges"]:
-            return False
-    return True
+"""
+    Schrijf entry naar history.txt:
+    <timestamp>\t<outputCount>\t<filter>\t<laatste20>\n
+    INPUT:
+        filter_str = de JSON-string die als filter diende
+        passed = de lijst van graph6-strings filterd waren
+"""
+def save_history(filter_str: str, passed: list[str]):
+    timestamp = datetime.now().isoformat(sep=' ') # tijd van wanneer de filter gerund werd (vb: "2025-05-06 14:23:45.123456")
+    count = len(passed) # aantal geslaagde grafen
+    last20 = passed[-20:]   # lijst met alle 20 laatste geslaagde grafen
+    entry = f"{timestamp}\t{count}\t{filter_str}\t{','.join(last20)}\n"  # de data in string vorm
+    with open(HISTORY_FILE, 'a') as f: # opent of maakt history.txt en voegt nieuwe regel er aan toe
+        f.write(entry)
 
 
 def main():
-    args = parse_args()
-    filter_config = load_filter_config(args.filter)
-    filter_text = args.filter  # bewaar originele JSON voor historie
+    parser = argparse.ArgumentParser(description="Eenvoudige graph6-filter.")
+    parser.add_argument('--filter', '-f', required=True, help='JSON-string met regels') # verplicht argument toe: --filter of kort -f
+    args = parser.parse_args() # zorgt ervoor dat het script stopt met een foutmelding als je dit argument niet meegeeft.
 
-    input_count = 0
-    passed_graphs = []
+    filter_str = args.filter # Haalt de tekst uit args.filter en bewaart als filter_str
+    rules = load_rules(filter_str) # roept load_rules aan om van die JSON-string een lijst van rule-dicts te krijgen.
+    passed = filter_graphs(rules) # passed is een lijst van graph6-strings die aan alle regels voldoen
 
-    # Verwerk elke graph6-regel van stdin
-    for line in sys.stdin:
-        line = line.strip()
-        if not line:
-            continue
-        try:
-            graph = nx.from_graph6_bytes(line.encode())
-        except Exception:
-            sys.stderr.write(f"Warning: skipped invalid graph6 line: {line}\n")
-            continue
-        input_count += 1
-        if passes_all_rules(graph, filter_config["rules"]):
-            passed_graphs.append(line)
+    if not passed:  # als passed leeg is, beëindigt het script met een foutmelding
+        sys.exit("Geen grafen voldeden aan de filter.")
 
-    # Schrijf alle doorgekomen grafen naar stdout
-    for g in passed_graphs:
-        sys.stdout.write(g + "\n")
+    for g in passed: # print elke graaf uit passed
+        print(g)
 
-    # Voeg een gestructureerde entry toe aan de historie
-    timestamp = datetime.now().isoformat(sep=' ')
-    output_count = len(passed_graphs)
-    recent20 = passed_graphs[-20:]
-    separator = '=' * 60
-
-    with open(HISTORY_FILE, "a") as hist:
-        hist.write(separator + "\n")
-        hist.write(f"Timestamp      : {timestamp}\n")
-        hist.write(f"Input graphs   : {input_count}\n")
-        hist.write(f"Output graphs  : {output_count}\n")
-        hist.write(f"Filter         : {filter_text}\n")
-        hist.write("Last 20 passed : " + ", ".join(recent20) + "\n")
-        hist.write("\n")
+    save_history(filter_str, passed) # bewaar de gegeven JSON-string en grafen in history.txt
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
+
