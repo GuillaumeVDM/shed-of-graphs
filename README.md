@@ -37,3 +37,13 @@ cd ~/Desktop/iwProject
 source projectvenv/bin/activate
 pytest
 ```
+
+## BackUp & Restore
+```bash
+chmod +x backup_history.sh
+./backup_history.sh
+
+chmod +x restore_history.sh
+./restore_history.sh
+-> Kies een nummer
+```
