@@ -35,6 +35,5 @@ chmod +x runfilter.sh
 ```bash
 cd ~/Desktop/iwProject
 source projectvenv/bin/activate
-python -m pytest -v test/test_filter.py
-python -m pytest -v test/test_history.py
+pytest
 ```
