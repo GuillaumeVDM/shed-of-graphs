@@ -47,3 +47,8 @@ chmod +x restore_history.sh
 ./restore_history.sh
 -> Kies een nummer
 ```
+## Web Server
+```bash
+python webapp/app.py
+http://localhost:5000/index
+```
