@@ -48,11 +48,13 @@ Kies voor te restoren een index van de history_backup
 ## Web Server
 ```bash
 python webapp/app.py
+```
+Webapplicatie openen
+```bash
 http://localhost:5000/index
 ```
-
 ## Docker-setup
-Image bouwen
+Image bouwen (zorg dat je Docker Desktop open staat)
 ```bash
 docker build -t graph-webapp .
 ```
