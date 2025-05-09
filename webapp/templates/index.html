@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Recente Verwerkte Grafen</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+    th, td { border: 1px solid #ccc; padding: 0.5rem; text-align: left; }
+    th { background: #f0f0f0; }
+    img { max-width: 200px; height: auto; display: block; }
+  </style>
+</head>
+<body>
+  <h1>Recente Verwerkte Grafen</h1>
+
+  {% if graphs %}
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Graph6-code</th>
+          <th>Afbeelding</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for g in graphs %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td><code>{{ g }}</code></td>
+            <td>
+              <img src="{{ url_for('graph_image', idx=loop.index0) }}" alt="Graf {{ loop.index }}">
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>Er zijn geen verwerkte grafen gevonden.</p>
+  {% endif %}
+</body>
+</html>
