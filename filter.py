@@ -6,7 +6,7 @@ import argparse
 import networkx as nx
 from datetime import datetime
 import os
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt 
 
 HISTORY_FILE = 'history.txt'
 
