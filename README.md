@@ -10,7 +10,12 @@ Dit is een tool voor graph6-grafen te filteren: je kunt grafen filteren op minim
 - zie requirements.txt
 
 ## Installatie
-
+Kopieer de shed-of-graphs.git
+```bash
+git clone https://github.com/GuillaumeVDM/shed-of-graphs.git
+cd shed-of-graphs
+```
+Maak een virtual environment aan met de nodige requirements
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
@@ -18,10 +23,8 @@ pip install -r requirements.txt
 ```
 ## Gebruik
 ```bash
-git clone https://github.com/GuillaumeVDM/shed-of-graphs.git
-cd shed-of-graphs
 chmod +x runfilter.sh
-./runfilter.sh 5 \'{"rules":[{"type":"min","edges":3,"sumdeg":5},{"type":"max","edges":5,"sumdeg":6}]}'
+./runfilter.sh 5 '{"rules":[{"type":"min","edges":3,"sumdeg":5},{"type":"max","edges":5,"sumdeg":6}]}'
 ```
 
 ## Tests
