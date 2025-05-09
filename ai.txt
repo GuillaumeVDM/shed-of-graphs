@@ -1,0 +1,61 @@
+De gebruikt AI bij mijn Informatica Werktuigen Project
+
+->Voor de filter.py heb ik de basis van alle functies geschreven, zoals load_rules, passes_rule, save_history. Natuurlijk zijn er bij sommige wat debugging geweest, maar in deze file was dit weinig van toepassing. Bij de filter_graphs functie heb ik AI gebruikt in verband met de networkx package. 
+Bij de main is dit stuk AI geschreven:
+
+    # Export images if requested
+    if args.export and args.export[0].lower() == 'image':
+        out_dir = args.export[1]
+        os.makedirs(out_dir, exist_ok=True)
+        for idx, g6 in enumerate(passed):
+            # Reconstruct graph and draw
+            G = nx.from_graph6_bytes(g6.encode())
+            fig = plt.figure()
+            nx.draw(G, with_labels=False)
+
+            # Save figure
+            img_path = os.path.join(out_dir, f'graph_{idx}.{args.image_format}')
+            fig.savefig(img_path, format=args.image_format)
+            plt.close(fig)
+
+De test waren origeel grotendeels zelf geschreven, maar doordat mijn vader om 9 mei om 21:30 een fout vond ik mijn filter.py heb ik grotendeels de test_filter.py met AI moeten schrijven. Daarom dat in de GitHub veel commits niet via branches zijn gegaan, maar via directe commits.
+
+
+
+->Voor runfilter.sh is het grootste deel door mij geschreven. Het waren hier gewoon kleine errors die soms opkwamen en die waren dan door een lijn of een kleine aanpassing aan de code opgelost. Hier zou ik wel niet meer precies van weten waar dit precies was.
+
+
+
+Voor runfilter_parallel.sh is dit grotendeels door AI geschreven:
+
+if [ "$ORDER" -lt 8 ] || [ "$ORDER" -gt 64 ]; then
+  echo "Order $ORDER outside Plantri’s 8–64 range, falling back to geng."
+  geng -q "$ORDER" | python3 filter.py --filter "$FILTER_JSON" \
+    > "$OUTDIR/${PREFIX}_thread0.g6"
+  exit 0
+fi
+
+for ((i=0; i<THREADS; i++)); do
+  (
+    echo "[Thread $i] plantri -g $ORDER $i/$THREADS → filtering…"
+    plantri -g "$ORDER" "$i/$THREADS" \
+        | python3 filter.py --filter "$FILTER_JSON" \
+        > "$OUTDIR/${PREFIX}_thread${i}.g6"
+
+
+    echo "[Thread $i] klaar, output → ${PREFIX}_thread${i}.g6"
+  ) &
+done
+
+
+
+
+->Bij backup_history.sh en restore_history.sh was het alleen lichte AI debugging.
+
+
+
+->De app.py en index.html zijn grotendeels geschreven door AI, omdat ik daar niet veel kennis in had en ik kan ook geen html schrijven.
+
+
+
+->De docker file was dan wel weer grotendeels zelf geschreven. Ik denk dat ik een keer AI heb moeten gebruiken en dat was gewoon omdat het slecht werkt als je AirPlay-ontvanger aanligt.
