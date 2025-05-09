@@ -1,1 +1,7 @@
-networkx
+iniconfig==2.1.0
+packaging==25.0
+pluggy==1.5.0
+pytest==8.3.5
+networkx>=3.0
+matplotlib>=3.0
+Flask>=2.0
