@@ -4,6 +4,8 @@ import json
 import argparse
 import networkx as nx
 from datetime import datetime
+import os
+import matplotlib.pyplot as plt
 
 HISTORY_FILE = 'history.txt'
 
@@ -90,8 +92,16 @@ def save_history(filter_str: str, passed: list[str]):
 def main():
     parser = argparse.ArgumentParser(description="Eenvoudige graph6-filter.")
     parser.add_argument('--filter', '-f', required=True, help='JSON-string met regels') # verplicht argument toe: --filter of kort -f
+    parser.add_argument(
+        '--export', '-e', nargs=2, metavar=('TYPE', 'FOLDER'),
+        help='Enable exporting of filtered graphs; TYPE must be "image" and FOLDER is output directory'
+    )
+    parser.add_argument(
+        '--image-format', default='png',
+        help='Image format for export (e.g. png, jpg)'
+    )
     args = parser.parse_args() # zorgt ervoor dat het script stopt met een foutmelding als je dit argument niet meegeeft.
-
+    
     filter_str = args.filter # Haalt de tekst uit args.filter en bewaart als filter_str
     rules = load_rules(filter_str) # roept load_rules aan om van die JSON-string een lijst van rule-dicts te krijgen.
     passed = filter_graphs(rules) # passed is een lijst van graph6-strings die aan alle regels voldoen
@@ -104,7 +114,22 @@ def main():
 
     save_history(filter_str, passed) # bewaar de gegeven JSON-string en grafen in history.txt
 
+     # Export images if requested
+    if args.export and args.export[0].lower() == 'image':
+        out_dir = args.export[1]
+        os.makedirs(out_dir, exist_ok=True)
+        for idx, g6 in enumerate(passed):
+            # Reconstruct graph and draw
+            G = nx.from_graph6_bytes(g6.encode())
+            fig = plt.figure()
+            nx.draw(G, with_labels=False)
+
+            # Save figure
+            img_path = os.path.join(out_dir, f'graph_{idx}.{args.image_format}')
+            fig.savefig(img_path, format=args.image_format)
+            plt.close(fig)
 
 if __name__ == '__main__':
     main()
+
 
