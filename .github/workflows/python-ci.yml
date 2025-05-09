@@ -40,5 +40,5 @@ jobs:
       - name: Run test suite
         run: |
           source .venv/bin/activate
-          pytest -q test/test_filter.py
+          pytest -q
 
