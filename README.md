@@ -12,8 +12,7 @@ Deze applicatie implementeert Stage 1 en Stage 2 van de opdracht “Shed of Grap
 
 ## Vereisten
 
-- Python 3.8+
-- NetworkX (zie `requirements.txt`)
+- zie requirements.txt
 
 ## Installatie
 
@@ -45,10 +44,34 @@ chmod +x backup_history.sh
 
 chmod +x restore_history.sh
 ./restore_history.sh
--> Kies een nummer
 ```
+Kies voor te restoren een index van de history_backup
+
 ## Web Server
 ```bash
 python webapp/app.py
 http://localhost:5000/index
+```
+
+## Docker-setup
+Image bouwen
+```bash
+docker build -t graph-webapp .
+```
+Container starten
+```bash
+docker run -d \
+  --name graph-webapp \
+  -p 5000:5000 \
+  -v "$(pwd)/history.txt:/app/history.txt:ro" \
+  graph-webapp
+```
+Webapplicatie openen
+```bash
+http://localhost:5000/index
+```
+Container stoppen en verwijderen
+```bash
+docker stop graph-webapp
+docker rm   graph-webapp
 ```
