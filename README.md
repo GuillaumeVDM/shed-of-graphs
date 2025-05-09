@@ -30,8 +30,6 @@ chmod +x runfilter.sh
 ## Tests
 
 ```bash
-cd ~/Desktop/iwProject
-source projectvenv/bin/activate
 pytest
 ```
 
