@@ -4,6 +4,9 @@ import json
 import pytest
 import networkx as nx
 import importlib
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+filter_module = importlib.import_module('filter')
 
 # Importeer het filter-module onder een veilige naam
 filter_module = importlib.import_module('filter')
