@@ -31,4 +31,4 @@ jobs:
       - name: Run test suite
         run: |                        
           source .venv/bin/activate 
-          pytest -q  
+          pytest tests -q
