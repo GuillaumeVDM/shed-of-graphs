@@ -3,12 +3,7 @@
 
 ## Beschrijving
 
-Deze applicatie implementeert Stage 1 en Stage 2 van de opdracht “Shed of Graphs”:
-
-- **Stage 1**: filteren van grafen in graph6-formaat op basis van gecombineerde regels (minimaal/maximaal/exact aantal edges ten opzichte van som van degrees).
-- **Stage 2**: bijhouden en persistent opslaan van een historie (timestamp, aantal input/output grafen, gebruikte filter, 20 recentste gefilterte grafen) in een tekstbestand.
-
-*Gebaseerd op de projectopdracht van KU Leuven*
+Dit is een tool voor graph6-grafen te filteren: je kunt grafen filteren op minimaal/maximaal/exact aantal randen en som van graden, waarbij automatisch een geschiedenislog wordt bijgehouden (inclusief uur-backups). De code bevat unit-tests met pytest en een CI-workflow, en er is een bash-script voor parallelle filtering. Gefilterde grafen exporteer je als PNG/SVG, je kunt ze realtime bekijken via een basic Flask-webinterface en de hele webserver draait in een Docker-container.
 
 ## Vereisten
 
