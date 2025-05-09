@@ -1,9 +1,77 @@
+<!-- README.md -->
 # Shed of Graphs
 
-Een minimalistische filter- en history-applicatie voor grafen.
+## Beschrijving
+
+Deze applicatie implementeert Stage 1 en Stage 2 van de opdracht “Shed of Graphs”:
+
+- **Stage 1**: filteren van grafen in graph6-formaat op basis van gecombineerde regels (minimaal/maximaal/exact aantal edges ten opzichte van som van degrees).
+- **Stage 2**: bijhouden en persistent opslaan van een historie (timestamp, aantal input/output grafen, gebruikte filter, 20 recentste gefilterte grafen) in een tekstbestand.
+
+*Gebaseerd op de projectopdracht van KU Leuven*
+
+## Vereisten
+
+- zie requirements.txt
 
 ## Installatie
+
 ```bash
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
+```
+## Gebruik
+```bash
+git clone https://github.com/GuillaumeVDM/shed-of-graphs.git
+cd shed-of-graphs
+chmod +x runfilter.sh
+./runfilter.sh 5 \'{"rules":[{"type":"min","edges":3,"sumdeg":5},{"type":"max","edges":5,"sumdeg":6}]}'
+```
+
+## Tests
+
+```bash
+cd ~/Desktop/iwProject
+source projectvenv/bin/activate
+pytest
+```
+
+## BackUp & Restore
+```bash
+chmod +x backup_history.sh
+./backup_history.sh
+
+chmod +x restore_history.sh
+./restore_history.sh
+```
+Kies voor te restoren een index van de history_backup
+
+## Web Server
+```bash
+python webapp/app.py
+http://localhost:5000/index
+```
+
+## Docker-setup
+Image bouwen
+```bash
+docker build -t graph-webapp .
+```
+Container starten
+```bash
+docker run -d \
+  --name graph-webapp \
+  -p 5000:5000 \
+  -v "$(pwd)/history.txt:/app/history.txt:ro" \
+  graph-webapp
+```
+Webapplicatie openen
+```bash
+http://localhost:5000/index
+```
+Container stoppen en verwijderen
+```bash
+docker stop graph-webapp
+docker rm   graph-webapp
+```

@@ -1,0 +1,34 @@
+name: Python CI # Python Continuous Integration
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest # zet een verse virtuele Linux-machine (runner) met Ubuntu klaar
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3 # kloon de repository op die runner
+
+      - name: Set up Python
+        uses: actions/setup-python@v4 # zorgt dat Python 3.12 beschikbaar is op de runner.
+        with:
+          python-version: '3.12'
+
+      # Dependencies installeren
+      - name: Install dependencies
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+          
+      # activeert opnieuw de virtuele omgeving in deze stap
+      # voert al de tests uit in quiet mode
+      - name: Run test suite
+        run: |                        
+          source .venv/bin/activate 
+          pytest -q  
