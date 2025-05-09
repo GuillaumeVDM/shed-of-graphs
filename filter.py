@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python3
 import sys
 import json
@@ -32,19 +33,15 @@ def load_rules(filter_json: str):
     s = getal van rule waarmee je degsum vergelijkt
 
 """
-def passes_rule(edges: int, degsum: int, rule: dict) -> bool:
+def passes_rule(count: int, rule: dict) -> bool:
     typ = rule['type']
-    e = rule['edges']
-    s = rule['sumdeg']
+    e   = rule['edges']
     if typ == 'min':
-        # Vereist dat beide voorwaarden gelden
-        return edges >= e and degsum >= s
+        return count >= e
     if typ == 'max':
-        # Vereist dat beide voorwaarden gelden
-        return edges <= e and degsum <= s
+        return count <= e
     if typ == 'exact':
-        # Vereist dat beide voorwaarden gelden
-        return edges == e and degsum == s
+        return count == e
     return False
 
 """
@@ -56,7 +53,7 @@ def passes_rule(edges: int, degsum: int, rule: dict) -> bool:
         lijst passed met alle graph6-strings die voldoen aan de filtercriteria
 """
 def filter_graphs(rules: list[dict]) -> list[str]:
-    passed = [] # hierin gaan we alle graph6-strings verzamelen die voldoen
+    passed = [] # hierin gaan we alle graph6-strings verzamelen die voldoen aan de voorwaarden
     for line in sys.stdin:  
         g6 = line.strip()   # verwijdert overbodige witruimte
         if not g6:          # lege regels overslaan
@@ -65,11 +62,16 @@ def filter_graphs(rules: list[dict]) -> list[str]:
             G = nx.from_graph6_bytes(g6.encode())   # Parseren: networkx.from_graph6_bytes maakt van de textuele graph6-representatie een NetworkX-grafobject
         except Exception:
             continue
-        edges = G.number_of_edges() # edges = totaal aantal randen in graf G.
-        degsum = sum(dict(G.degree()).values()) # degsum = de som van alle knoopgraden
-        if all(passes_rule(edges, degsum, rule) for rule in rules): # we loopen over alle rule-dicts in rules, checken rule, 
-                                                                    # all() geeft alleen True als elk individueel passes_rule-resultaat True is
-            passed.append(g6) # toevoegen van oorspronkelijke graph6-string
+        ok = True
+        for rule in rules:
+            s = rule['sumdeg']
+            # tel hoeveel randen voldoen aan sumdeg-criterium
+            count = sum(1 for u, v in G.edges() if G.degree(u) + G.degree(v) == s)
+            if not passes_rule(count, rule):
+                ok = False
+                break
+        if ok:
+            passed.append(g6)
     return passed
 
 
@@ -131,5 +133,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
