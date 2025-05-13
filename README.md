@@ -33,6 +33,11 @@ chmod +x runfilter.sh
 pytest
 ```
 
+## PNG's
+```bash
+./runfilter.sh 5 '{"rules":[{"type":"min","edges":3,"sumdeg":5}]}' --export image images --image-format png
+```
+
 ## BackUp & Restore
 ```bash
 chmod +x backup_history.sh
